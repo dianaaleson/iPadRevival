@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>iPadRevival</title>
+<style>
+  @import url('https://fonts.googleapis.com/css?family=Share+Tech+Mono|Barlow+Condensed:300,700&display=swap');
+
+  :root {
+    --bg:       #0a0e17;
+    --panel:    #111827;
+    --border:   #1e2d45;
+    --accent:   #00c8ff;
+    --accent2:  #f97316;
+    --text:     #e2e8f0;
+    --muted:    #64748b;
+    --green:    #22c55e;
+    --yellow:   #facc15;
+    --red:      #ef4444;
+    --radius:   12px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Barlow Condensed', sans-serif;
+    height: 100vh;
+    overflow: hidden;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-direction: column;
+    flex-direction: column;
+    padding: 16px;
+    gap: 12px;
+  }
+
+  /* ── TOP BAR: clock + date ── */
+  #topbar {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-box-align: baseline;
+    -webkit-align-items: baseline;
+    align-items: baseline;
+    gap: 16px;
+    -webkit-box-pack: justify;
+    -webkit-justify-content: space-between;
+    justify-content: space-between;
+    padding: 0 4px;
+  }
+
+  #clock {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 72px;
+    color: var(--accent);
+    line-height: 1;
+    letter-spacing: -2px;
+  }
+
+  #date {
+    font-size: 28px;
+    font-weight: 300;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+
+  /* ── WEATHER PANEL ── */
+  #weather {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 24px;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-box-align: center;
+    -webkit-align-items: center;
+    align-items: center;
+    gap: 24px;
+  }
+
+  #weather-icon {
+    font-size: 56px;
+    line-height: 1;
+  }
+
+  #weather-main {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-box-align: baseline;
+    -webkit-align-items: baseline;
+    align-items: baseline;
+    gap: 12px;
+  }
+
+  #weather-temp {
+    font-size: 64px;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--text);
+  }
+
+  #weather-range {
+    font-size: 28px;
+    color: var(--muted);
+    font-weight: 300;
+  }
+
+  #weather-right {
+    margin-left: auto;
+    text-align: right;
+  }
+
+  #weather-rain {
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  #weather-rain-label {
+    font-size: 18px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  #weather-desc {
+    font-size: 20px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  /* ── TRANSIT ── */
+  #transit {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: flex;
+    gap: 12px;
+    -webkit-box-flex: 1;
+    -webkit-flex: 1;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .station-panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    -webkit-box-flex: 1;
+    -webkit-flex: 1;
+    flex: 1;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-direction: column;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .station-header {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 15px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--accent);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .departure-list {
+    -webkit-box-flex: 1;
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: hidden;
+    padding: 6px 0;
+  }
+
+  .departure-row {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-box-align: center;
+    -webkit-align-items: center;
+    align-items: center;
+    padding: 6px 14px;
+    gap: 10px;
+    border-bottom: 1px solid rgba(30,45,69,0.5);
+  }
+
+  .departure-row:last-child {
+    border-bottom: none;
+  }
+
+  .line-badge {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    min-width: 44px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    text-align: center;
+    background: var(--border);
+    color: var(--text);
+  }
+
+  .line-badge.ubahn   { background: #1565C0; color: #fff; }
+  .line-badge.sbahn   { background: #2E7D32; color: #fff; }
+  .line-badge.bus     { background: #7B1FA2; color: #fff; }
+  .line-badge.tram    { background: #B71C1C; color: #fff; }
+  .line-badge.ferry   { background: #00838F; color: #fff; }
+
+  .departure-dest {
+    font-size: 20px;
+    font-weight: 300;
+    -webkit-box-flex: 1;
+    -webkit-flex: 1;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text);
+  }
+
+  .departure-time {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 22px;
+    font-weight: 700;
+    min-width: 52px;
+    text-align: right;
+  }
+
+  .departure-time.now    { color: var(--red); }
+  .departure-time.soon   { color: var(--yellow); }
+  .departure-time.later  { color: var(--green); }
+
+  .loading {
+    font-size: 18px;
+    color: var(--muted);
+    padding: 16px;
+    text-align: center;
+  }
+
+  /* ── LAST UPDATED ── */
+  #footer {
+    font-size: 13px;
+    color: var(--muted);
+    text-align: center;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding-bottom: 2px;
+  }
+
+  /* Thin accent line top of screen */
+  body::before {
+    content: '';
+    display: block;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 2px;
+    margin-bottom: 4px;
+    margin: -16px -16px 4px -16px;
+  }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div id="topbar">
+  <div id="clock">00:00</div>
+  <div id="date">Loading…</div>
+</div>
+
+<!-- WEATHER -->
+<div id="weather">
+  <div id="weather-icon">⏳</div>
+  <div>
+    <div id="weather-main">
+      <div id="weather-temp">--°</div>
+      <div id="weather-range">-- / --</div>
+    </div>
+    <div id="weather-desc">Loading weather…</div>
+  </div>
+  <div id="weather-right">
+    <div id="weather-rain">--%</div>
+    <div id="weather-rain-label">Rain chance</div>
+  </div>
+</div>
+
+<!-- TRANSIT -->
+<div id="transit">
+  <div class="station-panel" id="panel-0">
+    <div class="station-header" id="name-0">Station 900012104</div>
+    <div class="departure-list loading" id="deps-0">Loading…</div>
+  </div>
+  <div class="station-panel" id="panel-1">
+    <div class="station-header" id="name-1">Station 900012102</div>
+    <div class="departure-list loading" id="deps-1">Loading…</div>
+  </div>
+  <div class="station-panel" id="panel-2">
+    <div class="station-header" id="name-2">Station 900012103</div>
+    <div class="departure-list loading" id="deps-2">Loading…</div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div id="footer" id="footer-ts">Updated --:--</div>
+
+<script>
+  // ── CONFIG ──────────────────────────────────────────────
+  var STATION_IDS = ['900012104', '900012102', '900012103'];
+  // Berlin Mitte area coords — adjust if needed
+  var LAT = 52.4837;
+  var LON = 13.4267;
+  var REFRESH_MS = 60000; // refresh every 60 seconds
+  // ────────────────────────────────────────────────────────
+
+  // Clock
+  function updateClock() {
+    var now = new Date();
+    var h = now.getHours();
+    var m = now.getMinutes();
+    document.getElementById('clock').textContent =
+      (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m;
+
+    var days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    document.getElementById('date').textContent =
+      days[now.getDay()] + ' ' + now.getDate() + ' ' + months[now.getMonth()];
+  }
+
+  setInterval(updateClock, 1000);
+  updateClock();
+
+  // Weather WMO code → emoji + label
+  function weatherInfo(code) {
+    if (code === 0)               return { icon: '☀️',  desc: 'Clear sky' };
+    if (code <= 2)                return { icon: '🌤',  desc: 'Partly cloudy' };
+    if (code === 3)               return { icon: '☁️',  desc: 'Overcast' };
+    if (code >= 45 && code <= 48) return { icon: '🌫',  desc: 'Foggy' };
+    if (code >= 51 && code <= 57) return { icon: '🌦',  desc: 'Drizzle' };
+    if (code >= 61 && code <= 67) return { icon: '🌧',  desc: 'Rain' };
+    if (code >= 71 && code <= 77) return { icon: '❄️',  desc: 'Snow' };
+    if (code >= 80 && code <= 82) return { icon: '🌧',  desc: 'Rain showers' };
+    if (code >= 85 && code <= 86) return { icon: '🌨',  desc: 'Snow showers' };
+    if (code >= 95)               return { icon: '⛈',  desc: 'Thunderstorm' };
+    return { icon: '🌡', desc: 'Unknown' };
+  }
+
+  function fetchWeather() {
+    var url = 'https://api.open-meteo.com/v1/forecast'
+      + '?latitude=' + LAT
+      + '&longitude=' + LON
+      + '&current_weather=true'
+      + '&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max'
+      + '&timezone=Europe%2FBerlin';
+
+    fetch(url).then(function(r) { return r.json(); }).then(function(d) {
+      var cw   = d.current_weather;
+      var info = weatherInfo(cw.weathercode);
+      var tmax = Math.round(d.daily.temperature_2m_max[0]);
+      var tmin = Math.round(d.daily.temperature_2m_min[0]);
+      var rain = d.daily.precipitation_probability_max[0];
+
+      document.getElementById('weather-icon').textContent = info.icon;
+      document.getElementById('weather-temp').textContent = Math.round(cw.temperature) + '°';
+      document.getElementById('weather-range').textContent = tmin + '° / ' + tmax + '°';
+      document.getElementById('weather-desc').textContent = info.desc;
+      document.getElementById('weather-rain').textContent = rain + '%';
+
+      // Colour the rain chance
+      var rainEl = document.getElementById('weather-rain');
+      rainEl.style.color = rain >= 70 ? 'var(--red)' : rain >= 40 ? 'var(--yellow)' : 'var(--green)';
+    }).catch(function() {
+      document.getElementById('weather-desc').textContent = 'Weather unavailable';
+    });
+  }
+
+  // BVG departures
+  function lineClass(product) {
+    if (!product) return '';
+    var p = product.toLowerCase();
+    if (p === 'subway' || p === 'u-bahn') return 'ubahn';
+    if (p === 'suburban' || p === 's-bahn') return 'sbahn';
+    if (p === 'bus') return 'bus';
+    if (p === 'tram') return 'tram';
+    if (p === 'ferry') return 'ferry';
+    return '';
+  }
+
+  function minsUntil(when) {
+    var diff = Math.round((new Date(when) - new Date()) / 60000);
+    return diff;
+  }
+
+  function timeClass(mins) {
+    if (mins <= 1)  return 'now';
+    if (mins <= 5)  return 'soon';
+    return 'later';
+  }
+
+  function timeLabel(mins) {
+    if (mins <= 0)  return 'NOW';
+    if (mins === 1) return '1 min';
+    return mins + ' min';
+  }
+
+  function fetchStation(stationId, idx) {
+    var url = 'https://v6.bvg.transport.rest/stops/' + stationId + '/departures'
+      + '?results=6&duration=60';
+
+    fetch(url).then(function(r) { return r.json(); }).then(function(data) {
+      var deps = data.departures || data;
+      if (!deps || !deps.length) {
+        document.getElementById('deps-' + idx).textContent = 'No departures';
+        return;
+      }
+
+      // Set station name from first departure
+      if (deps[0] && deps[0].stop && deps[0].stop.name) {
+        document.getElementById('name-' + idx).textContent = deps[0].stop.name;
+      }
+
+      var html = '';
+      var shown = 0;
+      for (var i = 0; i < deps.length && shown < 5; i++) {
+        var dep = deps[i];
+        var when = dep.when || dep.plannedWhen;
+        if (!when) continue;
+        var mins = minsUntil(when);
+        if (mins < -1) continue;  // skip already departed
+        var line = (dep.line && dep.line.name) ? dep.line.name : '?';
+        var dest = dep.direction || '—';
+        var product = (dep.line && dep.line.product) ? dep.line.product : '';
+        var cls = lineClass(product);
+        var tc  = timeClass(mins);
+        var tl  = timeLabel(mins);
+
+        html += '<div class="departure-row">'
+          + '<span class="line-badge ' + cls + '">' + line + '</span>'
+          + '<span class="departure-dest">' + dest + '</span>'
+          + '<span class="departure-time ' + tc + '">' + tl + '</span>'
+          + '</div>';
+        shown++;
+      }
+
+      var el = document.getElementById('deps-' + idx);
+      el.className = 'departure-list';
+      el.innerHTML = html || '<div class="loading">No upcoming departures</div>';
+    }).catch(function() {
+      document.getElementById('deps-' + idx).innerHTML =
+        '<div class="loading">Could not load</div>';
+    });
+  }
+
+  function fetchAllStations() {
+    for (var i = 0; i < STATION_IDS.length; i++) {
+      fetchStation(STATION_IDS[i], i);
+    }
+    // Update footer timestamp
+    var now = new Date();
+    var h = now.getHours();
+    var m = now.getMinutes();
+    document.getElementById('footer').textContent =
+      'Updated ' + (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m;
+  }
+
+  // Initial load
+  fetchWeather();
+  fetchAllStations();
+
+  // Auto-refresh
+  setInterval(fetchWeather, REFRESH_MS * 10); // weather every 10 min
+  setInterval(fetchAllStations, REFRESH_MS);   // transit every 1 min
+</script>
+</body>
+</html>
