@@ -12,7 +12,7 @@
     --panel:    #ffffff;
     --border:   #e8e0d0;
     --rosehip:  #F6C3AE;
-    --brick:    #f25a30;
+    --brick:    #ff8156;
     --viola:    #CDBCDB;
     --sunshine: #FDD848;
     --apple:    #AAD59E;
@@ -322,8 +322,8 @@
   }
 
   .departure-time.now    { color: var(--brick); font-weight: 700; }
-  .departure-time.soon   { color: #f5b214; font-weight: 700; }
-  .departure-time.later  { color: #44f26f; }
+  .departure-time.soon   { color: var(--yellow); font-weight: 700; }
+  .departure-time.later  { color: var(--green); }
 
   .loading {
     font-size: 18px;
@@ -472,7 +472,7 @@
 
       // Colour the rain chance
       var rainEl = document.getElementById('weather-rain');
-      rainEl.style.color = rain >= 70 ? '#F0743E' : rain >= 40 ? '#c48a00' : '#4a8a5a';
+      rainEl.style.color = rain >= 70 ? var(--green) : rain >= 40 ? var(--green) : var(--green);
 
       // ── Feels like: find current hour index ──
       var now = new Date();
