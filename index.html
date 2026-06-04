@@ -471,8 +471,10 @@
       document.getElementById('weather-rain').textContent = rain + '%';
 
       // Colour the rain chance
-      var rainEl = document.getElementById('weather-rain');
-      rainEl.style.color = rain >= 70 ? '#CDBCDB' : rain >= 40 ? '#CDBCDB' : '#CDBCDB';
+      var brick   = getComputedStyle(document.documentElement).getPropertyValue('--brick').trim();
+      var yellow  = getComputedStyle(document.documentElement).getPropertyValue('--yellow').trim();
+      var green   = getComputedStyle(document.documentElement).getPropertyValue('--green').trim();
+      rainEl.style.color = rain >= 70 ? brick : rain >= 40 ? yellow : green;
 
       // ── Feels like: find current hour index ──
       var now = new Date();
